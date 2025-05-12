@@ -4,15 +4,17 @@ import keychainLogo from "./assets/keychainlogo.png";
 import failedImage from "./assets/failedImage.png";
 import successImage from "./assets/successImage.png";
 import { Spinner } from "./components/spinner";
+import { HiveQRCode } from "./components/hive-qr";
 
 const App = () => {
   const [step, setStep] = useState(1);
   const [recipient] = useState("@networkstate");
   const [amount, setAmount] = useState("");
   const [token, setToken] = useState("HIVE");
-  const [memo, setMemo] = useState("");
+  const [memo, setMemo] = useState("Value4Value donation for this work");
   const [sender, setSender] = useState("");
   const [msg, setMsg] = useState("");
+  const [paymentMode, setPaymentMode] = useState('keychain');
 
   const transfer = (account, to, amount, memo, currency, enforce = true, rpc = null) => {
     return new Promise((resolve, reject) => {
@@ -41,7 +43,14 @@ const App = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if(!sender) {
+      setMsg("Please enter sender's username");
+      return;
+    }
+
     setStep("pending");
+    setMsg("")
 
     try {
       const res = await transfer(sender, recipient, Number(amount).toFixed(3), memo, token, true);
@@ -66,9 +75,21 @@ const App = () => {
     setStep(2);
   };
 
+  const op = [
+    "transfer",
+    {
+      to: "networkstate",
+      amount: `${amount} HIVE`,
+      memo: "Payment for appreciation",
+    },
+  ];
+
   return (
     <div className="app-container">
-      <h2 className="header-title">NETWORK STATE</h2>
+      <div className="page-title">
+        <h2>Make a Value4Value donation to the authors of the book</h2>
+        <h3>“The Digital Community Manifesto”</h3>
+      </div>
       <form className="transfer-form">
         <p className="warning">{msg}</p>
         {step === 1 && (
@@ -130,27 +151,59 @@ const App = () => {
 
         {step === 2 && (
           <div className="step-2">
-            <div className="form-field">
-              <label className="form-label">Your username:</label>
-              <input
-                className="form-input"
-                type="text"
-                required
-                value={sender}
-                onChange={(e) => setSender(e.target.value)}
-              />
+            <div className="toggle-buttons">
+              <span
+                className={`toggle-btn ${paymentMode === 'keychain' ? 'active' : ''}`}
+                onClick={() => setPaymentMode('keychain')}
+              >
+                Pay with Keychain
+              </span>
+              <span
+                className={`toggle-btn ${paymentMode === 'qr' ? 'active' : ''}`}
+                onClick={() => setPaymentMode('qr')}
+              >
+                Scan QR Code
+              </span>
             </div>
 
-            <button className="submit-btn" onClick={handleSubmit}>
-              <img className="keychain-logo" src={keychainLogo} alt="Keychain Logo" />
-              Send with Keychain
-            </button>
+            {paymentMode === 'keychain' && (
+              <>
+                <div className="form-field">
+                  <p>Enter the username of the account that's paying</p>
+                  <label className="form-label">username:</label>
+                  <input
+                    className="form-input"
+                    type="text"
+                    required
+                    value={sender}
+                    onChange={(e) => setSender(e.target.value.toLowerCase())}
+                  />
+                </div>
 
-            <button className="back-btn test-btn" onClick={(e)=> {
-              e.preventDefault()
-              setStep(1)
-              setSender("")
-              }}>Go back</button>
+                <button className="submit-btn" onClick={handleSubmit}>
+                  <img className="keychain-logo" src={keychainLogo} alt="Keychain Logo" />
+                  Send with Keychain
+                </button>
+              </>
+            )}
+
+            {paymentMode === 'qr' && (
+              <div className="qr-wrapper">
+                <p>Scan QR code with Keychain mobile app to complete payment</p>
+                <HiveQRCode op={op} withLogo={true} size={200} />
+              </div>
+            )}
+
+            <button
+              className="back-btn test-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                setStep(1);
+                setSender("");
+              }}
+            >
+              Go back
+            </button>
           </div>
         )}
 
