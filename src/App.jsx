@@ -79,8 +79,8 @@ const App = () => {
     "transfer",
     {
       to: "networkstate",
-      amount: `${amount} HIVE`,
-      memo: "Payment for appreciation",
+      amount: `${amount} ${token}`,
+      memo,
     },
   ];
 
