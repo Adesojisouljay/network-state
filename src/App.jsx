@@ -5,16 +5,18 @@ import failedImage from "./assets/failedImage.png";
 import successImage from "./assets/successImage.png";
 import { Spinner } from "./components/spinner";
 import { HiveQRCode } from "./components/hive-qr";
+import { validateUsername } from "./helpers";
 
 const App = () => {
   const [step, setStep] = useState(1);
   const [recipient] = useState("@networkstate");
   const [amount, setAmount] = useState("");
   const [token, setToken] = useState("HIVE");
-  const [memo, setMemo] = useState("Value4Value donation for this work");
+  const [memo, setMemo] = useState('Value4Value donation for "The Digital Community Manifesto"');
   const [sender, setSender] = useState("");
   const [msg, setMsg] = useState("");
   const [paymentMode, setPaymentMode] = useState('keychain');
+  const [usernameValid, setUsernameValid] = useState(false)
 
   const transfer = (account, to, amount, memo, currency, enforce = true, rpc = null) => {
     return new Promise((resolve, reject) => {
@@ -91,7 +93,7 @@ const App = () => {
         <h3>“The Digital Community Manifesto”</h3>
       </div>
       <form className="transfer-form">
-        <p className="warning">{msg}</p>
+        <p className={usernameValid ? "success" : "warning"}>{msg}</p>
         {step === 1 && (
           <div className="step-1">
             <div className="form-field">
@@ -176,7 +178,10 @@ const App = () => {
                     type="text"
                     required
                     value={sender}
-                    onChange={(e) => setSender(e.target.value.toLowerCase())}
+                    onChange={(e) => {
+                      setSender(e.target.value.toLowerCase())
+                      validateUsername(e.target.value.toLowerCase(), setMsg, setUsernameValid)
+                    }}
                   />
                 </div>
 
@@ -228,7 +233,10 @@ const App = () => {
         {step === "fail" && (
           <div className="status-message fail">
             <img className="status-images" src={failedImage} alt="" />
-            <p>Transaction failed. Please try again.</p>
+            <p>Transaction failed. <span className="back-to-qr" onClick={()=> {
+              setStep(2);
+              setPaymentMode("qr")
+            }}>Please try again using the QR code</span></p>
             <button className="back-btn" onClick={()=> setStep(2)}>Go back</button>
           </div>
         )}
