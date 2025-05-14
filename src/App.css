@@ -29,6 +29,10 @@
   color: red;
 }
 
+.success{
+  color: green;
+}
+
 .step-1{
   display: flex;
   flex-direction: column;
@@ -162,6 +166,15 @@
   height: 50px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+
+.back-to-qr{
+  cursor: pointer;
+}
+
+.back-to-qr:hover {
+  color: #0c4786;
 }
 
 .success-btn{
