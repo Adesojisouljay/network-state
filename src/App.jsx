@@ -131,7 +131,7 @@ const App = () => {
             </div>
 
             <div className="form-field">
-              <label className="form-label">Memo:</label>
+              <label className="form-label">Write your message to the authors:</label>
               <input
                 className="form-input"
                 type="text"
